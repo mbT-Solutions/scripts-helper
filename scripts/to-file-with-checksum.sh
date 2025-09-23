@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e -o pipefail
 
+BUFFER_SIZE="32M"
 DEPENDENCIES=(sha256sum mbuffer)
 INPUT="-"
 OUTPUT=""
@@ -9,10 +10,11 @@ SILENT=false
 # Help message
 for ARGUMENT in "$@"; do
     if [ "$ARGUMENT" == "-h" ] || [ "$ARGUMENT" == "--help" ]; then
-        echo "Usage: $(basename "$0") [ARGUMENT]"
+        echo "Usage: $(basename "$0") [ARGUMENT...]"
         echo "Saves piped data into a file and calculate the sha256sum for it."
         echo "The checksum is saved next to the file with \".sha256sum\" as suffix."
         echo "ARGUMENT can be"
+        echo "    --buffer SIZE Buffer size to use, default \"$BUFFER_SIZE\"."
         echo "    --input FILE The input file path. If not set, data is read from stdin."
         echo "    --output FILE The output file path."
         echo "    --silent Suppress all messages except errors."
@@ -38,7 +40,10 @@ done
 
 # Check arguments
 while [[ -n "$1" ]]; do
-    if [[ "$1" == "--input" ]]; then
+    if [[ "$1" == "--buffer" ]]; then
+        shift
+        BUFFER_SIZE="$1"
+    elif [[ "$1" == "--input" ]]; then
         shift
         INPUT="$1"
     elif [[ "$1" == "--output" ]]; then
@@ -77,7 +82,7 @@ if [[ "$SILENT" == true ]]; then
     ADDIONAL_ARGUMENTS+=(-q)
 fi
 
-mbuffer -e -f -i "$INPUT" -m 32M -o "${OUTPUT}" -o - "${ADDIONAL_ARGUMENTS[@]}" \
+mbuffer -e -f -i "$INPUT" -m "$BUFFER_SIZE" -o "${OUTPUT}" -o - "${ADDIONAL_ARGUMENTS[@]}" \
     | sha256sum \
     | sed "s|-$|$(basename "${OUTPUT}")|" \
     > "${OUTPUT}.sha256sum"
