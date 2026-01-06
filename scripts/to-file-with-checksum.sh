@@ -68,7 +68,7 @@ if [[ ! -d "$(dirname "${OUTPUT}")" ]]; then
 fi
 
 if [[ "$INPUT" != "-" ]]; then
-        if [[ ! -f "$INPUT" ]]; then
+        if [[ ! -f "$INPUT" ]] && [[ ! -b "$INPUT" ]]; then
         echo "Error: Input file does not exist: \"$INPUT\"" >&2
         exit 14
     fi
