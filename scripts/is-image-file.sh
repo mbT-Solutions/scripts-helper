@@ -30,7 +30,7 @@ while [[ -n "$1" ]]; do
 done
 
 for file in "${FILES[@]}"; do
-    if [[ "${file,,}" != *.@(avif|heic|jpeg|jpg|png) ]]; then
+    if [[ "${file,,}" != *.@(avif|dng|heic|jpeg|jpg|png) ]]; then
         exit 20
     fi
 
